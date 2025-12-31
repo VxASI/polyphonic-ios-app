@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,14 +10,15 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Feather';
-import {colors, spacing, typography, borderRadius} from '../constants/theme';
-import {ModelConfig, UserPreferences} from '../types';
-import {apiKeyManager, aiService} from '../services/api/AIService';
-import {PROVIDERS} from '../constants/aiModels';
-import {ReasoningEffortSelector} from '../components/chat/ReasoningEffortSelector';
-import {useConversationStore} from '../store/conversationStore';
+import { colors, spacing, typography, borderRadius } from '../constants/theme';
+import { ModelConfig, UserPreferences } from '../types';
+import { FEATURE_FLAGS } from '../config/featureFlags';
+import { apiKeyManager, aiService } from '../services/api/AIService';
+import { PROVIDERS } from '../constants/aiModels';
+import { ReasoningEffortSelector } from '../components/chat/ReasoningEffortSelector';
+import { useConversationStore } from '../store/conversationStore';
 
 export function SettingsScreen() {
   const {
@@ -131,10 +132,12 @@ export function SettingsScreen() {
       'Export Data',
       'Your data will be exported to a JSON file',
       [
-        {text: 'Cancel', style: 'cancel'},
-        {text: 'Export', onPress: () => {
-          // TODO: Implement data export functionality
-        }},
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Export', onPress: () => {
+            // TODO: Implement data export functionality
+          }
+        },
       ]
     );
   };
@@ -144,10 +147,12 @@ export function SettingsScreen() {
       'Clear Cache',
       'This will remove all temporary data. Your conversations and memories will be preserved.',
       [
-        {text: 'Cancel', style: 'cancel'},
-        {text: 'Clear', style: 'destructive', onPress: () => {
-          // TODO: Implement cache clearing functionality
-        }},
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear', style: 'destructive', onPress: () => {
+            // TODO: Implement cache clearing functionality
+          }
+        },
       ]
     );
   };
@@ -198,7 +203,7 @@ export function SettingsScreen() {
                   placeholder={`Enter ${providerName} API Key`}
                   placeholderTextColor={colors.textQuaternary}
                   value={apiKeys[providerName] || ''}
-                  onChangeText={(value) => setApiKeys(prev => ({...prev, [providerName]: value}))}
+                  onChangeText={(value) => setApiKeys(prev => ({ ...prev, [providerName]: value }))}
                   secureTextEntry={apiKeys[providerName] === '••••••••••••••••'}
                   keyboardAppearance="dark"
                   autoCapitalize="none"
@@ -232,8 +237,8 @@ export function SettingsScreen() {
             </View>
             <Switch
               value={preferences.autoSaveToMemory}
-              onValueChange={(value) => setPreferences(prev => ({...prev, autoSaveToMemory: value}))}
-              trackColor={{false: colors.bgTertiary, true: colors.textQuaternary}}
+              onValueChange={(value) => setPreferences(prev => ({ ...prev, autoSaveToMemory: value }))}
+              trackColor={{ false: colors.bgTertiary, true: colors.textQuaternary }}
               thumbColor={preferences.autoSaveToMemory ? colors.textPrimary : colors.textTertiary}
             />
           </View>
@@ -247,8 +252,8 @@ export function SettingsScreen() {
             </View>
             <Switch
               value={preferences.shareToCommmmunity}
-              onValueChange={(value) => setPreferences(prev => ({...prev, shareToCommmmunity: value}))}
-              trackColor={{false: colors.bgTertiary, true: colors.textQuaternary}}
+              onValueChange={(value) => setPreferences(prev => ({ ...prev, shareToCommmmunity: value }))}
+              trackColor={{ false: colors.bgTertiary, true: colors.textQuaternary }}
               thumbColor={preferences.shareToCommmmunity ? colors.textPrimary : colors.textTertiary}
             />
           </View>
@@ -262,43 +267,47 @@ export function SettingsScreen() {
             </View>
             <Switch
               value={preferences.notificationsEnabled}
-              onValueChange={(value) => setPreferences(prev => ({...prev, notificationsEnabled: value}))}
-              trackColor={{false: colors.bgTertiary, true: colors.textQuaternary}}
+              onValueChange={(value) => setPreferences(prev => ({ ...prev, notificationsEnabled: value }))}
+              trackColor={{ false: colors.bgTertiary, true: colors.textQuaternary }}
               thumbColor={preferences.notificationsEnabled ? colors.textPrimary : colors.textTertiary}
             />
           </View>
         </View>
 
         {/* Reasoning Effort (GPT-5/5.1) */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>REASONING EFFORT</Text>
-          <Text style={styles.sectionDescription}>
-            Global default for GPT-5 and GPT-5.1 models. Can be overridden per conversation.
-          </Text>
+        {FEATURE_FLAGS.SHOW_REASONING_EFFORT_SETTINGS && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>REASONING EFFORT</Text>
+            <Text style={styles.sectionDescription}>
+              Global default for GPT-5 and GPT-5.1 models. Can be overridden per conversation.
+            </Text>
 
-          <ReasoningEffortSelector
-            value={globalReasoningEffort}
-            onChange={setGlobalReasoningEffort}
-            modelType="auto"
-            showDescription={true}
-            compact={false}
-          />
-        </View>
+            <ReasoningEffortSelector
+              value={globalReasoningEffort}
+              onChange={setGlobalReasoningEffort}
+              modelType="auto"
+              showDescription={true}
+              compact={false}
+            />
+          </View>
+        )}
 
         {/* Data Management */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>DATA MANAGEMENT</Text>
+        {FEATURE_FLAGS.SHOW_DATA_MANAGEMENT_SETTINGS && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>DATA MANAGEMENT</Text>
 
-          <TouchableOpacity style={styles.dataButton} onPress={exportData}>
-            <Icon name="download" size={18} color={colors.textSecondary} />
-            <Text style={styles.dataButtonText}>Export All Data</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.dataButton} onPress={exportData}>
+              <Icon name="download" size={18} color={colors.textSecondary} />
+              <Text style={styles.dataButtonText}>Export All Data</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.dataButton} onPress={clearCache}>
-            <Icon name="trash-2" size={18} color={colors.textSecondary} />
-            <Text style={styles.dataButtonText}>Clear Cache</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity style={styles.dataButton} onPress={clearCache}>
+              <Icon name="trash-2" size={18} color={colors.textSecondary} />
+              <Text style={styles.dataButtonText}>Clear Cache</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* About */}
         <View style={styles.section}>

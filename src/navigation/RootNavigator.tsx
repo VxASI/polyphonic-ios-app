@@ -1,8 +1,9 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {colors, typography} from '../constants/theme';
+import { View, StyleSheet } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { colors, typography } from '../constants/theme';
+import { FEATURE_FLAGS } from '../config/featureFlags';
 
 // Import custom icons
 import {
@@ -14,23 +15,23 @@ import {
 } from '../components/icons/TabIcons';
 
 // Import screens
-import {ChatScreenV2 as ChatScreen} from '../screens/ChatScreenV2';
-import {MemoryScreen} from '../screens/MemoryScreen';
-import {AutonomousScreen} from '../screens/AutonomousScreen';
-import {ShareScreen} from '../screens/ShareScreen';
-import {SettingsScreen} from '../screens/SettingsScreen';
-import {OnboardingScreen} from '../screens/OnboardingScreen';
-import {ConversationDetailScreen} from '../screens/ConversationDetailScreen';
-import {ConversationListScreen} from '../screens/ConversationListScreen';
-import {PersonaManagementScreen} from '../screens/PersonaManagementScreen';
+import { ChatScreenV2 as ChatScreen } from '../screens/ChatScreenV2';
+import { MemoryScreen } from '../screens/MemoryScreen';
+import { AutonomousScreen } from '../screens/AutonomousScreen';
+import { ShareScreen } from '../screens/ShareScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
+import { OnboardingScreen } from '../screens/OnboardingScreen';
+import { ConversationDetailScreen } from '../screens/ConversationDetailScreen';
+import { ConversationListScreen } from '../screens/ConversationListScreen';
+import { PersonaManagementScreen } from '../screens/PersonaManagementScreen';
 
 export type RootStackParamList = {
   Onboarding: undefined;
   Main: undefined;
-  ConversationDetail: {conversationId: string};
+  ConversationDetail: { conversationId: string };
   ConversationList: undefined;
   PersonaManagement: undefined;
-  PersonaEdit: {personaId: string | null};
+  PersonaEdit: { personaId: string | null };
 };
 
 export type MainTabParamList = {
@@ -45,7 +46,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 // Custom icon wrapper with animation potential
-const IconWrapper = ({children, focused}: {children: React.ReactNode; focused: boolean}) => (
+const IconWrapper = ({ children, focused }: { children: React.ReactNode; focused: boolean }) => (
   <View style={[
     styles.iconWrapper,
     focused && styles.iconWrapperFocused
@@ -87,7 +88,7 @@ function MainTabs() {
         name="Autonomous"
         component={AutonomousScreen}
         options={{
-          tabBarIcon: ({color, focused}) => (
+          tabBarIcon: ({ color, focused }) => (
             <IconWrapper focused={focused}>
               <InfinityIcon color={color} size={26} />
             </IconWrapper>
@@ -99,7 +100,7 @@ function MainTabs() {
         name="Chat"
         component={ChatScreen}
         options={{
-          tabBarIcon: ({color, focused}) => (
+          tabBarIcon: ({ color, focused }) => (
             <IconWrapper focused={focused}>
               <NestedTrianglesIcon color={color} size={26} />
             </IconWrapper>
@@ -107,35 +108,40 @@ function MainTabs() {
           tabBarLabel: 'Chat',
         }}
       />
-      <Tab.Screen
-        name="Memory"
-        component={MemoryScreen}
-        options={{
-          tabBarIcon: ({color, focused}) => (
-            <IconWrapper focused={focused}>
-              <MemoryNodesIcon color={color} size={26} />
-            </IconWrapper>
-          ),
-          tabBarLabel: 'Memory',
-        }}
-      />
-      <Tab.Screen
-        name="Share"
-        component={ShareScreen}
-        options={{
-          tabBarIcon: ({color, focused}) => (
-            <IconWrapper focused={focused}>
-              <OffsetSquaresIcon color={color} size={26} />
-            </IconWrapper>
-          ),
-          tabBarLabel: 'Share',
-        }}
-      />
+
+      {FEATURE_FLAGS.SHOW_MEMORY_TAB && (
+        <Tab.Screen
+          name="Memory"
+          component={MemoryScreen}
+          options={{
+            tabBarIcon: ({ color, focused }) => (
+              <IconWrapper focused={focused}>
+                <MemoryNodesIcon color={color} size={26} />
+              </IconWrapper>
+            ),
+            tabBarLabel: 'Memory',
+          }}
+        />
+      )}
+      {FEATURE_FLAGS.SHOW_SHARE_TAB && (
+        <Tab.Screen
+          name="Share"
+          component={ShareScreen}
+          options={{
+            tabBarIcon: ({ color, focused }) => (
+              <IconWrapper focused={focused}>
+                <OffsetSquaresIcon color={color} size={26} />
+              </IconWrapper>
+            ),
+            tabBarLabel: 'Share',
+          }}
+        />
+      )}
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarIcon: ({color, focused}) => (
+          tabBarIcon: ({ color, focused }) => (
             <IconWrapper focused={focused}>
               <FlowerIcon color={color} size={26} />
             </IconWrapper>
@@ -156,7 +162,7 @@ export function RootNavigator() {
       initialRouteName={isOnboarded ? 'Main' : 'Onboarding'}
       screenOptions={{
         headerShown: false,
-        contentStyle: {backgroundColor: colors.bgPrimary},
+        contentStyle: { backgroundColor: colors.bgPrimary },
       }}>
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Main" component={MainTabs} />
